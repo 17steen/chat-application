@@ -1,0 +1,36 @@
+.Chat {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;  
+    align-content: center;
+    border-radius: 200px;
+}
+
+.color-text {
+    display: flex;
+    justify-content: center;  
+    align-content: center;
+}
+
+.change-color1 {
+    margin-left: 5px;
+}
+
+.change-color-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.input-message {
+    width: 70%;
+}
+
+.message-wrapper {
+    margin-bottom: 10px;
+}
+
+.currentColor {
+    margin-top: 8px;
+    margin-left: 15px;
+}
