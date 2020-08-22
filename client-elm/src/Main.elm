@@ -85,7 +85,7 @@ subscriptions model =
             Sub.none
 
         Logged ->
-            Time.every 3333 GetMessages
+            Time.every 333 GetMessages
 
 
 
