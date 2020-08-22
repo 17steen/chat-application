@@ -12,3 +12,10 @@ client-elm/elm-stuff/0.19.1/i.dat
 client-elm/elm-stuff/0.19.1/Main.elmi
 client-elm/elm-stuff/0.19.1/Main.elmo
 client-elm/elm-stuff/0.19.1/o.dat
+*.dat
+client-elm/elm-stuff/0.19.1/d.dat
+client-elm/elm-stuff/0.19.1/i.dat
+client-elm/elm-stuff/0.19.1/Main.elmi
+client-elm/elm-stuff/0.19.1/Main.elmo
+client-elm/elm-stuff/0.19.1/o.dat
+client-elm/elm.js
