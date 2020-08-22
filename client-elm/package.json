@@ -1,0 +1,12 @@
+{
+  "name": "client-elm",
+  "version": "1.0.0",
+  "description": "elm client for my chat server",
+  "main": "elm.js",
+  "scripts": {
+    "make": "elm make src/Main.elm --output elm.js --optimize",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

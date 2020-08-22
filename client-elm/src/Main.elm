@@ -1,7 +1,6 @@
 module Main exposing (main)
 
 import Browser
-import Debug
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput, onSubmit)
@@ -24,7 +23,7 @@ import Svg exposing (Svg)
 import Svg.Attributes as SA
 import Time
 
-
+-- ripped from json extra package
 andMap : Decoder a -> Decoder (a -> b) -> Decoder b
 andMap =
     D.map2 (|>)
@@ -284,19 +283,18 @@ loginForm model =
 
 postLogin : Model -> Cmd Msg
 postLogin model =
-    Debug.log "posting login"
-        Http.post
-        { url = "http://localhost:8080/login"
-        , body =
-            Http.jsonBody
-                (Enc.object
-                    [ ( "authType", Enc.string "default" )
-                    , ( "username", Enc.string model.username )
-                    , ( "password", Enc.string model.password )
-                    ]
-                )
-        , expect = Http.expectJson GotLogin loginDecoder
-        }
+    Http.post
+    { url = "http://localhost:8080/login"
+    , body =
+        Http.jsonBody
+            (Enc.object
+                [ ( "authType", Enc.string "default" )
+                , ( "username", Enc.string model.username )
+                , ( "password", Enc.string model.password )
+                ]
+            )
+    , expect = Http.expectJson GotLogin loginDecoder
+    }
 
 
 type alias LoginInfo =
