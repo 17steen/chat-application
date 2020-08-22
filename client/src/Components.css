@@ -24,6 +24,11 @@
 
 .input-message {
     width: 70%;
+    background-color: #2b2b2b;
+    color: #acacac;
+    border: 0;
+    border-radius: 3px;
+    padding: 7px;
 }
 
 .message-wrapper {

@@ -22,10 +22,14 @@
   height: 100%;
 }
 
+.flex {
+  display: flex;
+}
+
 .flex1 {
   display: flex;
   justify-content: center;  
-  align-content: center;
+  align-items: center;
 }
 
 .margin0 {
@@ -64,4 +68,12 @@
 
 .errorText {
   color: red;
+}
+
+.successText {
+  color: green;
+}
+
+.marginbot0 {
+  margin-bottom: 0px;
 }

@@ -1,0 +1,65 @@
+:root {
+    --main-background-color: gray;
+    --main-background-color-secondary: rgb(18, 2, 32);
+    --main-text-color: white;
+    font-family:  Roboto;
+    display: flex;
+}
+
+
+
+body {
+    background-color: var(--main-background-color);
+    color: var(--main-text-color);
+}
+
+.username-display {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+    align-self: center;
+    background: fixed;
+    height: 75px;
+    border-radius: 5px 5px 25px 15px;
+    background-color: var(--main-background-color-secondary);
+    align-items: center;
+}
+
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin-bottom: 10px;
+}
+
+.message-form {
+    margin-top: 10px;
+}
+
+.message-list-container {
+    border-radius: 15px 25px 5px 5px;
+    background-color: var(--main-background-color-secondary);
+}
+
+.message-text {
+    color: aquamarine;
+    font-size: medium;
+}
+/*
+.message-item {
+     border-width: 2px; 
+    border-style: inset;
+    border-color: rgb(56, 4, 49);
+}
+*/
+.message-sender {
+    font-size: large;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}

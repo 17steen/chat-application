@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500|Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/material-components-web-elm@4.0.0/dist/material-components-web-elm.min.css">
+  <script src="https://unpkg.com/material-components-web-elm@4.0.0/dist/material-components-web-elm.min.js"></script>
+
+  
+  <link rel="stylesheet" type="text/css" href="src/index.css">
+
+  <title>Elm App</title>
+</head>
+<body>
+  <div id="elm-container"></div>
+  
+  <script src="./elm.js"></script>
+  <script>
+    var app = Elm.Main.init({
+      node: document.getElementById("elm-container")
+    });      
+  </script>
+</body>
+</html>
