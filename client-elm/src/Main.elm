@@ -1,4 +1,4 @@
-module Main exposing (main)
+port module Main exposing (main)
 
 import Browser
 import Html exposing (..)
@@ -22,7 +22,27 @@ import String
 import Svg exposing (Svg)
 import Svg.Attributes as SA
 import Time
+import SolidColor as SC
 
+
+import Debug
+
+
+hueToHex : Float -> String
+hueToHex hue =
+    SC.toHex (SC.fromHSL (hue, 100, 50))
+
+first3 : (a, b, c) -> a
+first3 (a, _, _) = 
+    a
+
+hexToHue : String -> Float 
+hexToHue hex =
+    case SC.fromHex hex of
+        Ok val ->
+            first3 (SC.toHSL val)
+        _ ->
+            0
 
 
 -- ripped from json extra package
@@ -32,6 +52,10 @@ andMap : Decoder a -> Decoder (a -> b) -> Decoder b
 andMap =
     D.map2 (|>)
 
+
+-- PORTS
+
+port setCookies : (String, String) -> Cmd any
 
 
 -- MAIN
@@ -49,7 +73,6 @@ main =
 type alias Model =
     { username : String
     , password : String
-    , color : String
     , colorValue : Float
     , session : String
     , messages : List Message
@@ -63,12 +86,15 @@ type State
     | Logged
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
+init : List (String, String) -> ( Model, Cmd Msg )
+init flags =
     ( { username = ""
       , password = ""
-      , color = "red"
-      , colorValue = 0
+      , colorValue = case flags of
+                    (key, val) :: rest ->
+                        if key == "color" then hexToHue val else 0
+                    _ ->
+                        0
       , session = ""
       , messages = []
       , currentMessage = ""
@@ -114,7 +140,7 @@ calcUsernameBackgroundWidth usr =
 chatForm : Model -> Html Msg
 chatForm model =
     div [ class "chat-container" ]
-        [ div [ class "username-display", style "width" (calcUsernameBackgroundWidth model.username) ] [ h4 [ Typography.headline4 ] [ text "Username: ", span [ style "color" model.color ] [ text model.username ] ] ]
+        [ div [ class "username-display", style "width" (calcUsernameBackgroundWidth model.username) ] [ h4 [ Typography.headline4 ] [ text "Username: ", span [ style "color" (hueToHex model.colorValue) ] [ text model.username ] ] ]
         , colorDisplay model
         , viewMessageList model.messages
         , sendMessageForm model
@@ -184,12 +210,13 @@ sendMessageForm model =
         [ TextField.filled
             (TextField.config
                 |> TextField.setType (Just "text")
-                |> TextField.setAttributes [ class "inputfield1", style "width" "100%" ]
+                |> TextField.setAttributes [ class "material-text-field", style "width" "100%" ]
                 |> TextField.setPlaceholder (Just "Type here...")
                 |> TextField.setValue (Just model.currentMessage)
                 |> TextField.setRequired True
                 |> TextField.setOnInput UpdateMessage
                 |> TextField.setLeadingIcon (Just (TextField.icon [] (determineIcon model.currentMessage)))
+                |> TextField.setValid (not (String.isEmpty model.currentMessage))
             )
         ]
 
@@ -212,7 +239,7 @@ sendMessage m =
             Http.jsonBody
                 (Enc.object
                     [ ( "username", Enc.string m.username )
-                    , ( "color", Enc.string m.color )
+                    , ( "color", Enc.string (hueToHex m.colorValue) )
                     , ( "text", Enc.string m.currentMessage )
                     ]
                 )
@@ -264,21 +291,23 @@ loginForm model =
         [ TextField.filled
             (TextField.config
                 |> TextField.setType (Just "text")
-                |> TextField.setAttributes [ style "width" "100%" ]
+                |> TextField.setAttributes [ style "width" "100%", class "material-text-field" ]
                 |> TextField.setPlaceholder (Just "Username...")
                 |> TextField.setValue (Just model.username)
                 |> TextField.setRequired True
                 |> TextField.setOnInput UpdateUsername
+                |> TextField.setValid (not (String.isEmpty model.username))
                 |> TextField.setLeadingIcon (Just (TextField.icon [] "face"))
             )
         , TextField.filled
             (TextField.config
                 |> TextField.setType (Just "password")
-                |> TextField.setAttributes [ style "width" "100%" ]
+                |> TextField.setAttributes [ style "width" "100%", class "material-text-field" ]
                 |> TextField.setPlaceholder (Just "Password...")
                 |> TextField.setValue (Just model.password)
                 |> TextField.setRequired True
                 |> TextField.setOnInput UpdatePassword
+                |> TextField.setValid (not (String.isEmpty model.password))
                 |> TextField.setLeadingIcon (Just (TextField.icon [] "vpn_key"))
             )
         , Button.raised (Button.config |> Button.setAttributes [ type_ "submit", style "width" "100%" ]) "LOGIN"
@@ -436,4 +465,4 @@ update msg model =
                     ( model, Cmd.none )
 
         ColorChanged f ->
-            ( { model | color = "hsl(" ++ String.fromFloat f ++ ", 100%, 50%)", colorValue = f }, Cmd.none )
+            ( { model |  colorValue = f }, setCookies ("color", hueToHex model.colorValue) )

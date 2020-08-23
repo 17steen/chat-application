@@ -17,10 +17,16 @@
   <div id="elm-container"></div>
   
   <script src="./elm.js"></script>
+  <script src="./src/utils.js"></script>
   <script>
-    var app = Elm.Main.init({
-      node: document.getElementById("elm-container")
-    });      
+    const app = Elm.Main.init({
+      node: document.getElementById("elm-container"),
+      flags: getCookieObject()
+    });
+    
+    app.ports.setCookies.subscribe(function([key, value]){
+      setCookies(key, value);
+    })
   </script>
 </body>
 </html>

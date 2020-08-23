@@ -102,3 +102,9 @@ body {
     border-radius: 5%;
     background-color: var(--main-background-color-secondary);
 }
+
+.material-text-field {
+    margin-top: 2%;
+    margin-bottom: 2%;
+    border-radius: 1%;
+}
