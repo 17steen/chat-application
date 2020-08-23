@@ -1,11 +1,11 @@
 :root {
-    --main-background-color: gray;
+    --main-background-color: rgb(58, 9, 39);
     --main-background-color-secondary: rgb(18, 2, 32);
     --main-text-color: white;
     font-family:  Roboto;
     display: flex;
+    flex-direction: column;
 }
-
 
 
 body {
@@ -17,16 +17,40 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-content: center;
-    align-self: center;
+    align-content: flex-start;
+    align-self: flex-start;
     background: fixed;
     height: 75px;
-    border-radius: 5px 5px 25px 15px;
+    border-radius:  15px 25px 5px 5px ;
     background-color: var(--main-background-color-secondary);
     align-items: center;
 }
 
+.w300 {
+    width: 300px!important;
+}
+
+.w100PC {
+    width: 100%!important;
+}
+
+.wrappable {
+    width: 50px;
+    overflow-wrap: break-word;
+}
+
+.slider-container {
+    width: 100%;
+    padding: 0% 10% 0% 10%;
+    margin: 10px 0px 10px 0px;
+    border-radius: 10px 10px 10px 10px;
+    background-color: var(--main-background-color-secondary);
+}
+
 .chat-container {
+    display: flex;
+    width: 300px;
+    height: auto;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -34,17 +58,28 @@ body {
 }
 
 .message-form {
+    display: flex;
+    justify-items: flex-end;
+    justify-content: flex-end;
+    justify-self: flex-end;
     margin-top: 10px;
 }
 
 .message-list-container {
     border-radius: 15px 25px 5px 5px;
     background-color: var(--main-background-color-secondary);
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    white-space: normal;
 }
+
 
 .message-text {
     color: aquamarine;
     font-size: medium;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    white-space: normal;
 }
 /*
 .message-item {
@@ -61,5 +96,9 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
+    width: 300px;
+    height: 110%;
+    padding: 2% 2% 2% 2%;
+    border-radius: 5%;
+    background-color: var(--main-background-color-secondary);
 }

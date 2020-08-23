@@ -23,7 +23,11 @@ import Svg exposing (Svg)
 import Svg.Attributes as SA
 import Time
 
+
+
 -- ripped from json extra package
+
+
 andMap : Decoder a -> Decoder (a -> b) -> Decoder b
 andMap =
     D.map2 (|>)
@@ -119,13 +123,13 @@ chatForm model =
 
 colorDisplay : Model -> Html Msg
 colorDisplay m =
-    Slider.slider
+    div [ class "slider-container" ] [ Slider.slider
         (Slider.config
-            |> Slider.setAttributes []
+            |> Slider.setAttributes [ ]
             |> Slider.setValue (Just m.colorValue)
             |> Slider.setMax (Just 360)
             |> Slider.setOnInput ColorChanged
-        )
+        )]
 
 
 viewMessageList : List Message -> Html Msg
@@ -139,12 +143,12 @@ viewMessageList messages =
         toList m =
             ListItem.listItem
                 (ListItem.config
-                    |> ListItem.setAttributes [ class "message-item" ]
+                    |> ListItem.setAttributes [ class "message-item", style "height" "auto" ]
                 )
                 [ ListItem.graphic [ Elevation.z16 ] [ svgCircle m.color ]
                 , ListItem.text []
                     { primary = [ span [ class "message-sender", style "color" m.color ] [ text m.sender ] ]
-                    , secondary = [ span [ class "message-text" ] (formatMessage m.text) ]
+                    , secondary = [ span [ class "message-text"] (formatMessage m.text) ]
                     }
                 ]
 
@@ -180,7 +184,7 @@ sendMessageForm model =
         [ TextField.filled
             (TextField.config
                 |> TextField.setType (Just "text")
-                |> TextField.setAttributes [ class "inputfield1" ]
+                |> TextField.setAttributes [ class "inputfield1", style "width" "100%" ]
                 |> TextField.setPlaceholder (Just "Type here...")
                 |> TextField.setValue (Just model.currentMessage)
                 |> TextField.setRequired True
@@ -260,7 +264,7 @@ loginForm model =
         [ TextField.filled
             (TextField.config
                 |> TextField.setType (Just "text")
-                |> TextField.setAttributes [ class "inputfield1" ]
+                |> TextField.setAttributes [ style "width" "100%" ]
                 |> TextField.setPlaceholder (Just "Username...")
                 |> TextField.setValue (Just model.username)
                 |> TextField.setRequired True
@@ -270,31 +274,31 @@ loginForm model =
         , TextField.filled
             (TextField.config
                 |> TextField.setType (Just "password")
-                |> TextField.setAttributes [ class "inputfield1" ]
+                |> TextField.setAttributes [ style "width" "100%" ]
                 |> TextField.setPlaceholder (Just "Password...")
                 |> TextField.setValue (Just model.password)
                 |> TextField.setRequired True
                 |> TextField.setOnInput UpdatePassword
                 |> TextField.setLeadingIcon (Just (TextField.icon [] "vpn_key"))
             )
-        , Button.raised (Button.config |> Button.setAttributes [ type_ "submit" ]) "LOGIN"
+        , Button.raised (Button.config |> Button.setAttributes [ type_ "submit", style "width" "100%" ]) "LOGIN"
         ]
 
 
 postLogin : Model -> Cmd Msg
 postLogin model =
     Http.post
-    { url = "http://localhost:8080/login"
-    , body =
-        Http.jsonBody
-            (Enc.object
-                [ ( "authType", Enc.string "default" )
-                , ( "username", Enc.string model.username )
-                , ( "password", Enc.string model.password )
-                ]
-            )
-    , expect = Http.expectJson GotLogin loginDecoder
-    }
+        { url = "http://localhost:8080/login"
+        , body =
+            Http.jsonBody
+                (Enc.object
+                    [ ( "authType", Enc.string "default" )
+                    , ( "username", Enc.string model.username )
+                    , ( "password", Enc.string model.password )
+                    ]
+                )
+        , expect = Http.expectJson GotLogin loginDecoder
+        }
 
 
 type alias LoginInfo =
