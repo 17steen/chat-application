@@ -8,7 +8,7 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-const messages = [];
+let messages = [];
 const sessions = new Map();
 const database = new Map().set("lamkas", 1).set("stéén", 2)
 
@@ -18,9 +18,10 @@ app.get('/message', (req, res) => {
 
 app.post('/message', (req, res) => {
     const message = req.body;
+    console.log(message.text)
     message.createdAt = Date.now()
     if(message.text === "/clear"){
-        messages.filter(() => true);
+        messages = [];
         return;
     }
     messages.push(message);

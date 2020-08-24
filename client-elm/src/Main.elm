@@ -1,6 +1,7 @@
 port module Main exposing (main)
 
 import Browser
+import Debug
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput, onSubmit)
@@ -14,35 +15,43 @@ import Material.FormField as FormField
 import Material.List as MList
 import Material.List.Item as ListItem
 import Material.Slider as Slider
+import Material.Switch as Switch
 import Material.TextField as TextField
 import Material.Theme as Theme
 import Material.Typography as Typography
-import Maybe exposing (andThen)
+import SolidColor as SC
 import String
 import Svg exposing (Svg)
 import Svg.Attributes as SA
 import Time
-import SolidColor as SC
-
-
-import Debug
 
 
 hueToHex : Float -> String
 hueToHex hue =
-    SC.toHex (SC.fromHSL (hue, 100, 50))
+    SC.toHex (SC.fromHSL ( hue, 100, 50 ))
 
-first3 : (a, b, c) -> a
-first3 (a, _, _) = 
+
+first3 : ( a, b, c ) -> a
+first3 ( a, _, _ ) =
     a
 
-hexToHue : String -> Float 
+
+hasChars : String -> Bool
+hasChars str =
+    not <|
+        String.isEmpty <|
+            str
+
+
+hexToHue : String -> Float
 hexToHue hex =
     case SC.fromHex hex of
         Ok val ->
             first3 (SC.toHSL val)
+
         _ ->
             0
+
 
 
 -- ripped from json extra package
@@ -53,9 +62,12 @@ andMap =
     D.map2 (|>)
 
 
+
 -- PORTS
 
-port setCookies : (String, String) -> Cmd any
+
+port setStorage : ( String, String ) -> Cmd any
+
 
 
 -- MAIN
@@ -73,6 +85,7 @@ main =
 type alias Model =
     { username : String
     , password : String
+    , password_confirm : String
     , colorValue : Float
     , session : String
     , messages : List Message
@@ -82,23 +95,25 @@ type alias Model =
 
 
 type State
-    = NotLogged
+    = NotLogged FormType
     | Logged
 
 
-init : List (String, String) -> ( Model, Cmd Msg )
+type FormType
+    = Login
+    | Register
+
+
+init : String -> ( Model, Cmd Msg )
 init flags =
     ( { username = ""
       , password = ""
-      , colorValue = case flags of
-                    (key, val) :: rest ->
-                        if key == "color" then hexToHue val else 0
-                    _ ->
-                        0
-      , session = ""
+      , password_confirm = ""
+      , colorValue = hexToHue flags
       , messages = []
+      , session = ""
       , currentMessage = ""
-      , state = NotLogged
+      , state = NotLogged Login
       }
     , attemptAutoLogin
     )
@@ -111,11 +126,12 @@ init flags =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     case model.state of
-        NotLogged ->
-            Sub.none
-
         Logged ->
+            -- this should probably be a flag
             Time.every 333 GetMessages
+
+        _ ->
+            Sub.none
 
 
 
@@ -125,8 +141,13 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     case model.state of
-        NotLogged ->
-            loginForm model
+        NotLogged formType ->
+            case formType of
+                Login ->
+                    loginForm model
+
+                Register ->
+                    registerForm model
 
         Logged ->
             chatForm model
@@ -149,13 +170,15 @@ chatForm model =
 
 colorDisplay : Model -> Html Msg
 colorDisplay m =
-    div [ class "slider-container" ] [ Slider.slider
-        (Slider.config
-            |> Slider.setAttributes [ ]
-            |> Slider.setValue (Just m.colorValue)
-            |> Slider.setMax (Just 360)
-            |> Slider.setOnInput ColorChanged
-        )]
+    div [ class "slider-container" ]
+        [ Slider.slider
+            (Slider.config
+                |> Slider.setAttributes []
+                |> Slider.setValue (Just m.colorValue)
+                |> Slider.setMax (Just 360)
+                |> Slider.setOnInput ColorChanged
+            )
+        ]
 
 
 viewMessageList : List Message -> Html Msg
@@ -174,7 +197,7 @@ viewMessageList messages =
                 [ ListItem.graphic [ Elevation.z16 ] [ svgCircle m.color ]
                 , ListItem.text []
                     { primary = [ span [ class "message-sender", style "color" m.color ] [ text m.sender ] ]
-                    , secondary = [ span [ class "message-text"] (formatMessage m.text) ]
+                    , secondary = [ span [ class "message-text" ] (formatMessage m.text) ]
                     }
                 ]
 
@@ -207,17 +230,7 @@ viewMessageList messages =
 sendMessageForm : Model -> Html Msg
 sendMessageForm model =
     Html.form [ onSubmit SendMessage, class "message-form" ]
-        [ TextField.filled
-            (TextField.config
-                |> TextField.setType (Just "text")
-                |> TextField.setAttributes [ class "material-text-field", style "width" "100%" ]
-                |> TextField.setPlaceholder (Just "Type here...")
-                |> TextField.setValue (Just model.currentMessage)
-                |> TextField.setRequired True
-                |> TextField.setOnInput UpdateMessage
-                |> TextField.setLeadingIcon (Just (TextField.icon [] (determineIcon model.currentMessage)))
-                |> TextField.setValid (not (String.isEmpty model.currentMessage))
-            )
+        [ materialTextField model.currentMessage "text" "Type here..." (determineIcon model.currentMessage) (not (String.isEmpty model.currentMessage)) UpdateMessage
         ]
 
 
@@ -285,32 +298,39 @@ createStylelist str =
         |> List.sortBy (\( char, b ) -> getHead (String.indexes char str))
 
 
+materialTextField : String -> String -> String -> String -> Bool -> (String -> Msg) -> Html Msg
+materialTextField str setType placeholder icon isValid updateFunction =
+    TextField.filled
+        (TextField.config
+            |> TextField.setType (Just setType)
+            |> TextField.setAttributes [ style "width" "100%", class "material-text-field" ]
+            |> TextField.setPlaceholder (Just placeholder)
+            |> TextField.setValue (Just str)
+            |> TextField.setRequired True
+            |> TextField.setOnInput updateFunction
+            |> TextField.setValid (not (String.isEmpty str))
+            |> TextField.setLeadingIcon (Just (TextField.icon [] icon))
+        )
+
+
+registerForm : Model -> Html Msg
+registerForm model =
+    Html.form [ onSubmit AttemptRegister, class "register-form" ]
+        [ materialTextField model.username "text" "Username..." "face" (hasChars model.username) UpdateUsername
+        , materialTextField model.password "password" "Password..." "vpn_key" (hasChars model.password) UpdatePassword
+        , materialTextField model.password_confirm "password" "Please confirm your password..." "vpn_key" (not (String.isEmpty model.password_confirm)) UpdatePasswordConfirm
+        , Button.raised (Button.config |> Button.setAttributes [ type_ "submit", style "width" "100%" ]) "REGISTER"
+        , Button.raised (Button.config |> Button.setAttributes [ type_ "button", style "width" "100%" ] |> Button.setOnClick ShowLoginForm) "GO TO LOGIN"
+        ]
+
+
 loginForm : Model -> Html Msg
 loginForm model =
     Html.form [ onSubmit AttemptLogin, class "login-form" ]
-        [ TextField.filled
-            (TextField.config
-                |> TextField.setType (Just "text")
-                |> TextField.setAttributes [ style "width" "100%", class "material-text-field" ]
-                |> TextField.setPlaceholder (Just "Username...")
-                |> TextField.setValue (Just model.username)
-                |> TextField.setRequired True
-                |> TextField.setOnInput UpdateUsername
-                |> TextField.setValid (not (String.isEmpty model.username))
-                |> TextField.setLeadingIcon (Just (TextField.icon [] "face"))
-            )
-        , TextField.filled
-            (TextField.config
-                |> TextField.setType (Just "password")
-                |> TextField.setAttributes [ style "width" "100%", class "material-text-field" ]
-                |> TextField.setPlaceholder (Just "Password...")
-                |> TextField.setValue (Just model.password)
-                |> TextField.setRequired True
-                |> TextField.setOnInput UpdatePassword
-                |> TextField.setValid (not (String.isEmpty model.password))
-                |> TextField.setLeadingIcon (Just (TextField.icon [] "vpn_key"))
-            )
+        [ materialTextField model.username "text" "Username..." "face" (hasChars model.username) UpdateUsername
+        , materialTextField model.password "password" "Password..." "vpn_key" (hasChars model.password) UpdatePassword
         , Button.raised (Button.config |> Button.setAttributes [ type_ "submit", style "width" "100%" ]) "LOGIN"
+        , Button.raised (Button.config |> Button.setAttributes [ type_ "button", style "width" "100%" ] |> Button.setOnClick ShowRegisterForm) "GO TO REGISTER"
         ]
 
 
@@ -324,6 +344,22 @@ postLogin model =
                     [ ( "authType", Enc.string "default" )
                     , ( "username", Enc.string model.username )
                     , ( "password", Enc.string model.password )
+                    ]
+                )
+        , expect = Http.expectJson GotLogin loginDecoder
+        }
+
+
+postRegister : Model -> Cmd Msg
+postRegister m =
+    Http.post
+        { url = "http://localhost:8080/register"
+        , body =
+            Http.jsonBody
+                (Enc.object
+                    [ ( "username", Enc.string m.username )
+                    , ( "password", Enc.string m.password )
+                    , ( "password2", Enc.string m.password_confirm )
                     ]
                 )
         , expect = Http.expectJson GotLogin loginDecoder
@@ -402,15 +438,19 @@ messageDecoder =
 
 type Msg
     = AttemptLogin
+    | AttemptRegister
     | GotLogin (Result Http.Error LoginInfo)
     | UpdateUsername String
     | UpdatePassword String
+    | UpdatePasswordConfirm String
     | GetMessages Time.Posix
     | GotMessages (Result Http.Error (List Message))
     | UpdateMessage String
     | SendMessage
     | MessageSent (Result Http.Error String)
     | ColorChanged Float
+    | ShowRegisterForm
+    | ShowLoginForm
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -418,6 +458,9 @@ update msg model =
     case msg of
         AttemptLogin ->
             ( model, postLogin model )
+
+        AttemptRegister ->
+            ( model, postRegister model )
 
         GotLogin result ->
             case result of
@@ -438,6 +481,9 @@ update msg model =
 
         UpdatePassword password ->
             ( { model | password = password }, Cmd.none )
+
+        UpdatePasswordConfirm password ->
+            ( { model | password_confirm = password }, Cmd.none )
 
         UpdateMessage message ->
             ( { model | currentMessage = message }, Cmd.none )
@@ -465,4 +511,12 @@ update msg model =
                     ( model, Cmd.none )
 
         ColorChanged f ->
-            ( { model |  colorValue = f }, setCookies ("color", hueToHex model.colorValue) )
+            ( { model | colorValue = f }, setStorage ( "color", hueToHex model.colorValue ) )
+
+        ShowLoginForm ->
+        
+            ( { model | state = NotLogged Login, password = "", password_confirm = "" }, Cmd.none )
+
+        ShowRegisterForm ->
+        
+            ( { model | state = NotLogged Register, password = "" }, Cmd.none )

@@ -92,6 +92,17 @@ body {
     font-size: large;
 }
 
+.register-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 300px;
+    height: 110%;
+    padding: 2% 2% 2% 2%;
+    border-radius: 5%;
+    background-color: var(--main-background-color-secondary);
+}
+
 .login-form {
     display: flex;
     flex-direction: column;

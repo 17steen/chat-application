@@ -17,16 +17,21 @@
   <div id="elm-container"></div>
   
   <script src="./elm.js"></script>
-  <script src="./src/utils.js"></script>
   <script>
+
+    const storage = localStorage;
+
+    const color = storage.getItem("color");
+
     const app = Elm.Main.init({
       node: document.getElementById("elm-container"),
-      flags: getCookieObject()
+      flags: color ? color : "#FF0000",
     });
     
-    app.ports.setCookies.subscribe(function([key, value]){
-      setCookies(key, value);
+    app.ports.setStorage.subscribe(function([key, value]){
+      storage.setItem(key, value);
     })
+
   </script>
 </body>
 </html>
