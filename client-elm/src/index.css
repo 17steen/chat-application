@@ -92,18 +92,84 @@ body {
     font-size: large;
 }
 
+
 .register-form {
+    
     display: flex;
     flex-direction: column;
     justify-content: center;
     width: 300px;
     height: 110%;
     padding: 2% 2% 2% 2%;
+    
     border-radius: 5%;
     background-color: var(--main-background-color-secondary);
+    
 }
 
 .login-form {
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 300px;
+    height: 110%;
+    padding: 2% 2% 2% 2%;
+    
+    border-radius: 5%;
+    background-color: var(--main-background-color-secondary);
+
+    
+}
+
+
+.login-form > .confirm-password {
+    transition: all 0.4s ease-out;
+    max-height: 100px;
+    opacity: 1;
+}
+
+.login-form > .confirm-password.tobehidden {
+    max-height: 0px;
+    opacity: 0;
+    filter: blur(4px);
+}
+
+
+/*
+.changing-text > .mdc-touch-target-wrapper > mdc-button > .mdc-button.mdc-button--raised.mdc-button--touch.mdc-ripple-upgraded > .mdc-button__label { 
+    transition: all 0.5s;
+}
+.changing-text > .mdc-touch-target-wrapper > mdc-button > .mdc-button.mdc-button--raised.mdc-button--touch.mdc-ripple-upgraded > .mdc-button__label[value*="LOGIN"] { 
+    filter: blur(20px);
+}
+*/
+
+
+@keyframes blur-text {
+    from {
+        filter: blur(5px);
+    }
+    to {
+        filter: blur(0);
+    }
+}
+
+.shown {
+    transition: all 0.333s ease-in-out;
+ }
+
+/*
+.login-form > *:disabled {
+    visibility: hidden;
+}
+*/
+
+/*
+
+.form-container {
+
+    
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -112,10 +178,37 @@ body {
     padding: 2% 2% 2% 2%;
     border-radius: 5%;
     background-color: var(--main-background-color-secondary);
+
+    
 }
+*/
 
 .material-text-field {
     margin-top: 2%;
     margin-bottom: 2%;
     border-radius: 1%;
 }
+
+
+@keyframes grow {
+    from {
+        max-height: 0px;
+        opacity: 0;
+    }
+    to {
+        max-height: 100px;
+      opacity: 1;
+    }
+  }
+
+
+  @keyframes disapear {
+    from {
+        max-height: 100px;
+      opacity: 1;
+    }
+    to {
+        max-height: 0px;
+        opacity: 0;
+    }
+  }

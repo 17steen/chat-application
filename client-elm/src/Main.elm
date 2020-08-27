@@ -22,7 +22,7 @@ import Material.Typography as Typography
 import SolidColor as SC
 import String
 import Svg exposing (Svg)
-import Svg.Attributes as SA
+import Svg.Attributes as SA exposing (color)
 import Time
 
 
@@ -142,13 +142,16 @@ view : Model -> Html Msg
 view model =
     case model.state of
         NotLogged formType ->
-            case formType of
-                Login ->
-                    loginForm model
+            displayForm model formType
 
-                Register ->
-                    registerForm model
+        {-
+           case formType of
+               Login ->
+                   loginForm model
 
+               Register ->
+                   registerForm model
+        -}
         Logged ->
             chatForm model
 
@@ -200,22 +203,12 @@ viewMessageList messages =
                     , secondary = [ span [ class "message-text" ] (formatMessage m.text) ]
                     }
                 ]
-
-        getHead : List Message -> Message
-        getHead l =
-            case List.head l of
-                Just m ->
-                    m
-
-                Nothing ->
-                    -- doesn't reach
-                    Message "" "" "" 0
     in
-    case List.isEmpty messages of
-        True ->
+    case List.head messages of
+        Nothing ->
             h3 [ Typography.headline3 ] [ text "Looks like there are no messages yet!" ]
 
-        False ->
+        Just head ->
             MList.list
                 (MList.config
                     |> MList.setNonInteractive False
@@ -223,14 +216,14 @@ viewMessageList messages =
                     |> MList.setAvatarList True
                     |> MList.setAttributes [ class "message-list-container", Elevation.z24 ]
                 )
-                (toList (getHead messages))
+                (toList head)
                 (List.map toList (List.drop 1 messages))
 
 
 sendMessageForm : Model -> Html Msg
 sendMessageForm model =
     Html.form [ onSubmit SendMessage, class "message-form" ]
-        [ materialTextField model.currentMessage "text" "Type here..." (determineIcon model.currentMessage) (not (String.isEmpty model.currentMessage)) UpdateMessage
+        [ materialTextField model.currentMessage "text" "Type here..." [] (determineIcon model.currentMessage) (not (String.isEmpty model.currentMessage)) UpdateMessage
         ]
 
 
@@ -298,12 +291,12 @@ createStylelist str =
         |> List.sortBy (\( char, b ) -> getHead (String.indexes char str))
 
 
-materialTextField : String -> String -> String -> String -> Bool -> (String -> Msg) -> Html Msg
-materialTextField str setType placeholder icon isValid updateFunction =
+materialTextField : String -> String -> String -> List (Attribute Msg) -> String -> Bool -> (String -> Msg) -> Html Msg
+materialTextField str setType placeholder arr icon isValid updateFunction =
     TextField.filled
         (TextField.config
             |> TextField.setType (Just setType)
-            |> TextField.setAttributes [ style "width" "100%", class "material-text-field" ]
+            |> TextField.setAttributes ([ style "width" "100%", class "material-text-field" ] ++ arr)
             |> TextField.setPlaceholder (Just placeholder)
             |> TextField.setValue (Just str)
             |> TextField.setRequired True
@@ -313,25 +306,36 @@ materialTextField str setType placeholder icon isValid updateFunction =
         )
 
 
-registerForm : Model -> Html Msg
-registerForm model =
-    Html.form [ onSubmit AttemptRegister, class "register-form" ]
-        [ materialTextField model.username "text" "Username..." "face" (hasChars model.username) UpdateUsername
-        , materialTextField model.password "password" "Password..." "vpn_key" (hasChars model.password) UpdatePassword
-        , materialTextField model.password_confirm "password" "Please confirm your password..." "vpn_key" (not (String.isEmpty model.password_confirm)) UpdatePasswordConfirm
-        , Button.raised (Button.config |> Button.setAttributes [ type_ "submit", style "width" "100%" ]) "REGISTER"
-        , Button.raised (Button.config |> Button.setAttributes [ type_ "button", style "width" "100%" ] |> Button.setOnClick ShowLoginForm) "GO TO LOGIN"
+
+displayForm : Model -> FormType -> Html Msg
+displayForm model formType =
+    let
+        hide bool el =
+            case bool of
+                True ->
+                    span [ class "confirm-password tobehidden" ] [ el ]
+
+                _ ->
+                    span [ class "confirm-password" ] [ el ]
+
+        either a b =
+            case formType of
+                Login ->
+                    a
+
+                Register ->
+                    b
+    in
+    Html.form [ onSubmit (either AttemptLogin AttemptRegister), class "login-form" ]
+        [ materialTextField model.username "text" "Username..." [] "face" (hasChars model.username) UpdateUsername
+        , materialTextField model.password "password" "Password..." [] "vpn_key" (hasChars model.password) UpdatePassword
+        , hide (either True False) (materialTextField model.password_confirm "password" "Please confirm your password..." [disabled (either True False)] "vpn_key" (not (String.isEmpty model.password_confirm)) UpdatePasswordConfirm)
+        , span [ class "changing-text" ] [ Button.raised (Button.config |> Button.setAttributes [ type_ "submit", style "width" "100%" ]) (either "LOGIN" "REGISTER") ]
+        , span [ class "changing-text" ] [ Button.raised (Button.config |> Button.setAttributes [ type_ "button", style "width" "100%" ] |> Button.setOnClick (either ShowRegisterForm ShowLoginForm)) (either "GO TO REGISTER" "GO TO LOGIN") ]
         ]
 
 
-loginForm : Model -> Html Msg
-loginForm model =
-    Html.form [ onSubmit AttemptLogin, class "login-form" ]
-        [ materialTextField model.username "text" "Username..." "face" (hasChars model.username) UpdateUsername
-        , materialTextField model.password "password" "Password..." "vpn_key" (hasChars model.password) UpdatePassword
-        , Button.raised (Button.config |> Button.setAttributes [ type_ "submit", style "width" "100%" ]) "LOGIN"
-        , Button.raised (Button.config |> Button.setAttributes [ type_ "button", style "width" "100%" ] |> Button.setOnClick ShowRegisterForm) "GO TO REGISTER"
-        ]
+
 
 
 postLogin : Model -> Cmd Msg
@@ -514,9 +518,7 @@ update msg model =
             ( { model | colorValue = f }, setStorage ( "color", hueToHex model.colorValue ) )
 
         ShowLoginForm ->
-        
             ( { model | state = NotLogged Login, password = "", password_confirm = "" }, Cmd.none )
 
         ShowRegisterForm ->
-        
             ( { model | state = NotLogged Register, password = "" }, Cmd.none )
