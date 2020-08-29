@@ -145,6 +145,7 @@ fn main() {
         database: init_map(),
         messages: Mutex::new(Vec::new()),
         sessions: HashMap::new(),
-    }).mount("/", StaticFiles::from(static_files))
+    })
+    .mount("/", StaticFiles::from(static_files))
     .mount("/", routes![login, post_message, get_message]).launch();
 }

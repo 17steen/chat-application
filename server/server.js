@@ -16,11 +16,6 @@ let messages = [];
 const sessions = new Map();
 const database = new Map().set("lamkas", "1").set("stéén", "2")
 
-
-app.get('/'), (req, res) => {
-    res.sendFile()
-}
-
 app.get('/message', (req, res) => {
     res.send(JSON.stringify(messages));
 });
@@ -108,5 +103,7 @@ app.post('/register', (req, res) => {
         res.send(JSON.stringify(session));
     }
 })
+
+console.log("http://localhost:8080/");
 
 app.listen(8080);
