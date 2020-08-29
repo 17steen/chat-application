@@ -3,14 +3,23 @@ const crypto = require("crypto");
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const express = require('express');
+const { argv } = require("process");
 const app = express();
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
+app.use(express.static(argv[2]  ?? "../client-elm/public"));
+
+
 let messages = [];
 const sessions = new Map();
-const database = new Map().set("lamkas", 1).set("stéén", 2)
+const database = new Map().set("lamkas", "1").set("stéén", "2")
+
+
+app.get('/'), (req, res) => {
+    res.sendFile()
+}
 
 app.get('/message', (req, res) => {
     res.send(JSON.stringify(messages));
@@ -67,7 +76,7 @@ app.post('/login', (req, res) => {
         
                 sessions.set(sessionID, session);
                 res.cookie("sessionID", session.id)
-                res.send(JSON.stringify(session));
+                res.send(JSON.stringify(session));  
             }
             break;
     }
