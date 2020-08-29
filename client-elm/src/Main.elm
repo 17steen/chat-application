@@ -144,14 +144,6 @@ view model =
         NotLogged formType ->
             displayForm model formType
 
-        {-
-           case formType of
-               Login ->
-                   loginForm model
-
-               Register ->
-                   registerForm model
-        -}
         Logged ->
             chatForm model
 
@@ -240,7 +232,7 @@ determineIcon msg =
 sendMessage : Model -> Cmd Msg
 sendMessage m =
     Http.post
-        { url = "http://localhost:8080/message"
+        { url = "/message"
         , body =
             Http.jsonBody
                 (Enc.object
@@ -341,7 +333,7 @@ displayForm model formType =
 postLogin : Model -> Cmd Msg
 postLogin model =
     Http.post
-        { url = "http://localhost:8080/login"
+        { url = "/login"
         , body =
             Http.jsonBody
                 (Enc.object
@@ -357,7 +349,7 @@ postLogin model =
 postRegister : Model -> Cmd Msg
 postRegister m =
     Http.post
-        { url = "http://localhost:8080/register"
+        { url = "/register"
         , body =
             Http.jsonBody
                 (Enc.object
@@ -390,7 +382,7 @@ attemptAutoLogin =
     Http.riskyRequest
         { method = "POST"
         , headers = []
-        , url = "http://localhost:8080/login"
+        , url = "/login"
         , body =
             Http.jsonBody
                 (Enc.object
@@ -408,7 +400,7 @@ attemptAutoLogin =
 getMessages : Model -> Cmd Msg
 getMessages model =
     Http.get
-        { url = "http://localhost:8080/message"
+        { url = "/message"
         , expect = Http.expectJson GotMessages messageDecoder
         }
 
@@ -469,13 +461,17 @@ update msg model =
         GotLogin result ->
             case result of
                 Ok info ->
-                    ( { model
-                        | username = info.username
-                        , session = info.sessionId
-                        , state = Logged
-                      }
-                    , getMessages model
-                    )
+                    case info.status of
+                        1 ->
+                            ( { model
+                                | username = info.username
+                                , session = info.sessionId
+                                , state = Logged
+                            }
+                            , getMessages model
+                            )
+                        _ ->
+                            ( model, Cmd.none )
 
                 Err _ ->
                     ( model, Cmd.none )
