@@ -18,5 +18,3 @@ version = "*"
 default-features = false
 features = ["json", "serve"]
 
-# [dependencies.redis]
-# version = "*"

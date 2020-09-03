@@ -298,7 +298,6 @@ materialTextField str setType placeholder arr icon isValid updateFunction =
         )
 
 
-
 displayForm : Model -> FormType -> Html Msg
 displayForm model formType =
     let
@@ -321,13 +320,10 @@ displayForm model formType =
     Html.form [ onSubmit (either AttemptLogin AttemptRegister), class "login-form" ]
         [ materialTextField model.username "text" "Username..." [] "face" (hasChars model.username) UpdateUsername
         , materialTextField model.password "password" "Password..." [] "vpn_key" (hasChars model.password) UpdatePassword
-        , hide (either True False) (materialTextField model.password_confirm "password" "Please confirm your password..." [disabled (either True False)] "vpn_key" (not (String.isEmpty model.password_confirm)) UpdatePasswordConfirm)
+        , hide (either True False) (materialTextField model.password_confirm "password" "Please confirm your password..." [ disabled (either True False) ] "vpn_key" (not (String.isEmpty model.password_confirm)) UpdatePasswordConfirm)
         , span [ class "changing-text" ] [ Button.raised (Button.config |> Button.setAttributes [ type_ "submit", style "width" "100%" ]) (either "LOGIN" "REGISTER") ]
         , span [ class "changing-text" ] [ Button.raised (Button.config |> Button.setAttributes [ type_ "button", style "width" "100%" ] |> Button.setOnClick (either ShowRegisterForm ShowLoginForm)) (either "GO TO REGISTER" "GO TO LOGIN") ]
         ]
-
-
-
 
 
 postLogin : Model -> Cmd Msg
@@ -467,9 +463,10 @@ update msg model =
                                 | username = info.username
                                 , session = info.sessionId
                                 , state = Logged
-                            }
+                              }
                             , getMessages model
                             )
+
                         _ ->
                             ( model, Cmd.none )
 

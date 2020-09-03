@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+
+  <link rel="apple-touch-icon" sizes="180x180" href="icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icon/favicon-16x16.png">
+  <link rel="manifest" href="icon/site.webmanifest">
+  <link rel="mask-icon" href="icon/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="theme-color" content="#ffffff">
+
+
+
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500|Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/material-components-web-elm@4.0.0/dist/material-components-web-elm.min.css">
+  <script src="https://unpkg.com/material-components-web-elm@4.0.0/dist/material-components-web-elm.min.js"></script>
+
+  
+  <link rel="stylesheet" type="text/css" href="./index.css">
+
+  <title>Elm App</title>
+</head>
+<body>
+  <div id="elm-container"></div>
+  
+  <script src="./elm.js"></script>
+  <script>
+
+    const storage = localStorage;
+
+    const color = storage.getItem("color");
+
+    const app = Elm.Main.init({
+      node: document.getElementById("elm-container"),
+      flags: color ? color : "#FF0000",
+    });
+    
+    app.ports.setStorage.subscribe(function([key, value]){
+      storage.setItem(key, value);
+    });
+
+  </script>
+</body>
+</html>

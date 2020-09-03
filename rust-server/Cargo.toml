@@ -1,0 +1,18 @@
+[package]
+name = "server"
+version = "0.0.1"
+authors = ["Robin Oger"]
+edition = "2018"
+
+[dependencies]
+actix-web = "2.0.0"
+actix-rt = "1.0.0"
+actix-files = "0.2.1"
+env_logger = "0.7"
+
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+json = "0.12"
+hex = "0.4.2"
+rand = "0.7.3"
+chrono = "0.4.15"

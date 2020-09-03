@@ -9,12 +9,13 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-app.use(express.static(argv[2]  ?? "../client-elm/public"));
+
+app.use(express.static(argv[2] ?? "../client-elm/public"));
 
 
 let messages = [];
 const sessions = new Map();
-const database = new Map().set("lamkas", "1").set("stéén", "2")
+const database = new Map().set("lamkas", "1").set("stéén", "2");
 
 app.get('/message', (req, res) => {
     res.send(JSON.stringify(messages));
@@ -75,18 +76,18 @@ app.post('/login', (req, res) => {
             }
             break;
     }
-})
+});
 
 app.post('/register', (req, res) => {
     const data = req.body;
     if(database.has(data.username)) {
         const error = {
-            status: -1
+            status: -1,
         }
         res.send(JSON.stringify(error))
     } else if(data.password !== data.password2) {
         const error = {
-            status: -2
+            status: -2,
         }
         res.send(JSON.stringify(error))
     } else {
@@ -96,13 +97,13 @@ app.post('/register', (req, res) => {
         const session = {
             id: sessionID,
             username: data.username,
-            status: 1
+            status: 1,
         }
 
         sessions.set(sessionID, session);
         res.send(JSON.stringify(session));
     }
-})
+});
 
 console.log("http://localhost:8080/");
 
